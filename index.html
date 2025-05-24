@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Quiz Selector - Once Upon A Time Quiz</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap");
+      body {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        font-family: "Montserrat", sans-serif;
+        background: linear-gradient(135deg, #2c3e50, #3498db);
+        color: #fff;
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 600px;
+        width: 100%;
+      }
+
+      .screen {
+        background: rgba(0, 0, 0, 0.75);
+        border-radius: 15px;
+        padding: 30px 30px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+        text-align: center;
+        width: 600px
+      }
+
+      h1 {
+        font-weight: 700;
+        letter-spacing: 2px;
+        margin-bottom: 30px;
+      }
+
+      button {
+        background: #f39c12;
+        border: none;
+        padding: 15px 40px;
+        border-radius: 10px;
+        font-size: 1.2rem;
+        color: #2c3e50;
+        font-weight: 700;
+        cursor: pointer;
+        margin: 10px 15px;
+        transition: background 0.3s ease;
+      }
+
+      button:hover {
+        background: #e67e22;
+      }
+
+      .quiz-list {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        max-width: 300px;
+        margin: 0 auto 20px auto;
+      }
+
+      .quiz-list button {
+        background: #2980b9;
+        color: #fff;
+        font-weight: 700;
+      }
+
+      .quiz-list button:hover {
+        background: #3498db;
+      }
+
+      .quiz-list-wrapper {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+      }
+
+      .quiz-list,
+      .score-list {
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 15px;
+        padding: 20px 25px;
+        max-width: 500px;
+      }
+
+      .score-list h2 {
+        margin-top: 0;
+        margin-bottom: 15px;
+        font-size: 1.3rem;
+        text-align: center;
+      }
+
+      .score-list ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .score-list li {
+        margin-bottom: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+      }
+
+      #back-to-start {
+        margin-top: 0;
+      }
+
+      .quiz-container {
+        background: rgba(0, 0, 0, 0.75);
+        border-radius: 15px;
+        padding: 30px 40px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+        display: none;
+        text-align: left;
+      }
+
+      .quiz-container h1 {
+        text-align: center;
+        margin-bottom: 25px;
+      }
+
+      .question {
+        font-size: 1.3rem;
+        margin-bottom: 20px;
+      }
+
+      .options {
+        list-style: none;
+        padding: 0;
+        margin: 0 0 20px 0;
+      }
+
+      .options li {
+        background: #34495e;
+        margin-bottom: 15px;
+        padding: 12px 18px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: background 0.3s ease;
+        border: 2px solid transparent;
+      }
+
+      .options li:hover {
+        background: #2980b9;
+      }
+
+      .options li.selected {
+        border-color: #f1c40f;
+        background: #f39c12;
+        color: #2c3e50;
+        font-weight: 700;
+      }
+
+      .feedback {
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+        min-height: 24px;
+        font-weight: 600;
+      }
+
+      .btn-next,
+      .btn-restart,
+      .btn-stop-quiz {
+        padding: 12px 28px;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        display: none;
+        margin: 0 auto;
+        transition: background 0.3s ease;
+        border: none;
+      }
+
+      .btn-next,
+      .btn-restart {
+        background: #f39c12;
+        color: #2c3e50;
+      }
+
+      .btn-next:hover,
+      .btn-restart:hover {
+        background: #e67e22;
+      }
+
+      .btn-stop-quiz {
+        background: #e74c3c;
+        color: #fff;
+        margin-left: 10px;
+        display: inline-block;
+      }
+
+      .btn-stop-quiz:hover {
+        background: #c0392b;
+      }
+
+      .btn-restart,
+      .btn-stop-quiz {
+        display: inline-block;
+      }
+
+      .btn-container {
+        text-align: center;
+      }
+
+      .score {
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-top: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Start Screen -->
+      <div class="start-screen screen">
+        <h1>Welcome to the Quiz Portal</h1>
+        <button id="play-btn">Play Quiz</button>
+        <button id="stop-btn">Stop Quizzing</button>
+      </div>
+
+      <!-- Quiz List Screen -->
+      <div class="quiz-list-screen screen" style="display: none">
+        <h1>Select a Quiz</h1>
+        <div class="quiz-list-wrapper">
+          <div class="quiz-list">
+            <button data-quiz="once-upon-a-time-s1">
+              Once Upon A Time - Season 1
+            </button>
+            <button data-quiz="once-upon-a-time-s2">
+              Once Upon A Time - Season 2
+            </button>
+            <button data-quiz="once-upon-a-time-s3">
+              Once Upon A Time - Season 3
+            </button>
+            <button data-quiz="once-upon-a-time-s4">
+              Once Upon A Time - Season 4
+            </button>
+            <button data-quiz="once-upon-a-time-s5">
+              Once Upon A Time - Season 5
+            </button>
+            <button data-quiz="once-upon-a-time-s6">
+              Once Upon A Time - Season 6
+            </button>
+            <button data-quiz="once-upon-a-time-s7">
+              Once Upon A Time - Season 7
+            </button>
+          </div>
+
+          <div class="score-list">
+            <h2>Recent Scores</h2>
+            <ul id="score-list-ul">
+              <!-- Scores populated here -->
+            </ul>
+          </div>
+        </div>
+        <button id="back-to-start">Back to Start</button>
+      </div>
+
+      <!-- Quiz Screen -->
+      <div class="quiz-container">
+        <h1>Quiz</h1>
+        <div class="question"></div>
+        <ul class="options"></ul>
+        <div class="feedback"></div>
+        <div class="btn-container">
+          <button class="btn-next">Next Question</button>
+          <button class="btn-restart">Restart Quiz</button>
+          <button class="btn-stop-quiz">Quiz Portal</button>
+        </div>
+        <div class="score"></div>
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      $(function () {
+        const quizzes = {
+          "once-upon-a-time-s1": {
+            title: "Once Upon A Time - Season 1 Quiz",
+            questions: [
+              {
+                question: "What town is the series set in?",
+                options: ["Storybrooke", "Camelot", "Neverland", "Atlantis"],
+                answer: 0,
+              },
+              {
+                question: "Who is the Evil Queen's real name?",
+                options: ["Regina Mills", "Cora", "Maleficent", "Zelena"],
+                answer: 0,
+              },
+              {
+                question: "What is Emma Swan's role in Storybrooke?",
+                options: ["Sheriff", "Mayor", "Teacher", "Librarian"],
+                answer: 0,
+              },
+              {
+                question: "Who is Emma Swan's biological son?",
+                options: ["Henry", "Graham", "Neal", "David"],
+                answer: 0,
+              },
+              {
+                question: "Which character is also known as The Dark One?",
+                options: [
+                  "Rumplestiltskin",
+                  "Prince Charming",
+                  "Captain Hook",
+                  "August",
+                ],
+                answer: 0,
+              },
+            ],
+          },
+
+          "once-upon-a-time-s2": {
+            title: "Once Upon A Time - Season 2 Quiz",
+            questions: [
+              {
+                question: "Who returns as the main antagonist in Season 2?",
+                options: ["Mr. Gold", "Peter Pan", "Cora", "Zelena"],
+                answer: 2,
+              },
+              {
+                question: "What magical land is explored extensively in Season 2?",
+                options: ["Neverland", "Oz", "Camelot", "Atlantis"],
+                answer: 0,
+              },
+              {
+                question: "Which character is revealed to be the daughter of Rumplestiltskin?",
+                options: ["Emma", "Baelfire", "Belle", "Zelena"],
+                answer: 3,
+              },
+              {
+                question: "Who sacrifices themselves to save Storybrooke at the end of Season 2?",
+                options: ["Emma Swan", "Henry Mills", "Mr. Gold", "Neal Cassidy"],
+                answer: 3,
+              },
+              {
+                question: "What is the name of the curse that traps everyone in Storybrooke?",
+                options: [
+                  "Dark Curse",
+                  "True Love's Curse",
+                  "Sleeping Curse",
+                  "Shadow Curse",
+                ],
+                answer: 0,
+              },
+            ],
+          },
+
+          "once-upon-a-time-s3": {
+            title: "Once Upon A Time - Season 3 Quiz",
+            questions: [
+              {
+                question: "Who is the main villain in the first half of Season 3?",
+                options: ["Peter Pan", "The Wicked Witch", "Maleficent", "Cora"],
+                answer: 0,
+              },
+              {
+                question: "Which realm do the characters travel to in Season 3?",
+                options: ["Neverland", "The Enchanted Forest", "Oz", "The Underworld"],
+                answer: 0,
+              },
+              {
+                question: "Who is Captain Hook’s real name?",
+                options: ["Killian Jones", "Baelfire", "Gideon", "August Booth"],
+                answer: 0,
+              },
+              {
+                question: "What happens to Henry in Season 3?",
+                options: [
+                  "He is kidnapped to Neverland",
+                  "He becomes the Dark One",
+                  "He leaves Storybrooke",
+                  "He loses his memories",
+                ],
+                answer: 0,
+              },
+              {
+                question: "Who does Emma make a deal with to return to Storybrooke?",
+                options: ["Peter Pan", "Mr. Gold", "The Wicked Witch", "August"],
+                answer: 1,
+              },
+            ],
+          },
+
+          "once-upon-a-time-s4": {
+            title: "Once Upon A Time - Season 4 Quiz",
+            questions: [
+              {
+                question: "Who is the main antagonist introduced in Season 4?",
+                options: ["The Wicked Witch", "Peter Pan", "Zelena", "Cruella"],
+                answer: 0,
+              },
+              {
+                question: "What magical item does Emma use to fight the Dark One?",
+                options: ["The Sword of Truth", "Excalibur", "The Dark One’s dagger", "The Sorcerer’s Hat"],
+                answer: 2,
+              },
+              {
+                question: "Which new realm is introduced in Season 4?",
+                options: ["Oz", "Neverland", "Wonderland", "The Underworld"],
+                answer: 0,
+              },
+              {
+                question: "Who is Zelena related to?",
+                options: ["Regina", "Emma", "Snow White", "Cora"],
+                answer: 0,
+              },
+              {
+                question: "Who becomes the new Dark One at the end of Season 4?",
+                options: ["Emma Swan", "Regina Mills", "Rumplestiltskin", "Zelena"],
+                answer: 0,
+              },
+            ],
+          },
+
+          "once-upon-a-time-s5": {
+            title: "Once Upon A Time - Season 5 Quiz",
+            questions: [
+              {
+                question: "Who is the main antagonist of Season 5?",
+                options: ["Mr. Gold", "Queen Elsa", "Peter Pan", "King Arthur"],
+                answer: 3,
+              },
+              {
+                question: "What realm is introduced in Season 5?",
+                options: ["Camelot", "Oz", "Wonderland", "Neverland"],
+                answer: 0,
+              },
+              {
+                question: "Who is the Sorcerer of the Dark Realm?",
+                options: ["Merlin", "King Arthur", "Rumplestiltskin", "Zelena"],
+                answer: 0,
+              },
+              {
+                question: "Who does Emma marry in Season 5?",
+                options: ["David", "Neal", "August", "Hook"],
+                answer: 3,
+              },
+              {
+                question: "What magical item does King Arthur possess?",
+                options: ["Excalibur", "The Dark One’s dagger", "The Sorcerer’s Hat", "The Sword of Truth"],
+                answer: 0,
+              },
+            ],
+          },
+
+          "once-upon-a-time-s6": {
+            title: "Once Upon A Time - Season 6 Quiz",
+            questions: [
+              {
+                question: "Who is the main villain in Season 6?",
+                options: ["Mr. Gold", "The Black Fairy", "Zelena", "Cruella"],
+                answer: 1,
+              },
+              {
+                question: "What is the name of Rumplestiltskin's daughter?",
+                options: ["Belle", "Baelfire", "Cora", "Zelena"],
+                answer: 0,
+              },
+              {
+                question: "Which character becomes sheriff in Storybrooke?",
+                options: ["Emma", "David", "Regina", "Henry"],
+                answer: 2,
+              },
+              {
+                question: "Who is Henry’s girlfriend in Season 6?",
+                options: ["Jacinda", "Lucy", "Ella", "Tiana"],
+                answer: 1,
+              },
+              {
+                question: "What curse is central in Season 6?",
+                options: ["Wish Realm Curse", "Dark Curse", "Sleeping Curse", "True Love's Curse"],
+                answer: 0,
+              },
+            ],
+          },
+
+          "once-upon-a-time-s7": {
+            title: "Once Upon A Time - Season 7 Quiz",
+            questions: [
+              {
+                question: "Who is the main antagonist in Season 7?",
+                options: ["Roni", "Mother Gothel", "Drizella", "Victoria"],
+                answer: 1,
+              },
+              {
+                question: "What new setting is featured in Season 7?",
+                options: ["Seattle", "Storybrooke", "Neverland", "Camelot"],
+                answer: 0,
+              },
+              {
+                question: "Who is Roni’s real identity?",
+                options: ["Regina", "Emma", "Cinderella", "Snow White"],
+                answer: 2,
+              },
+              {
+                question: "Which character struggles with a split identity in Season 7?",
+                options: ["Roni/Jessica", "Lucy", "Henry", "Drizella"],
+                answer: 0,
+              },
+              {
+                question: "What item does Mother Gothel use to control others?",
+                options: ["Magic Flower", "Dark Crystal", "Enchanted Mirror", "Magic Wand"],
+                answer: 0,
+              },
+            ],
+          },
+        };
+
+        // State variables
+        let currentQuizKey = null;
+        let currentQuestionIndex = 0;
+        let correctAnswersCount = 0;
+
+        // Cached jQuery selectors
+        const $startScreen = $(".start-screen");
+        const $quizListScreen = $(".quiz-list-screen");
+        const $quizContainer = $(".quiz-container");
+        const $playBtn = $("#play-btn");
+        const $stopBtn = $("#stop-btn");
+        const $backToStartBtn = $("#back-to-start");
+        const $scoreListUl = $("#score-list-ul");
+
+        const $questionText = $(".question");
+        const $optionsList = $(".options");
+        const $feedback = $(".feedback");
+        const $btnNext = $(".btn-next");
+        const $btnRestart = $(".btn-restart");
+        const $btnStopQuiz = $(".btn-stop-quiz");
+        const $scoreDisplay = $(".score");
+
+        // Helpers
+        function loadScores() {
+          // load score data from localStorage (if any)
+          const stored = localStorage.getItem("quizScores");
+          if (stored) {
+            try {
+              return JSON.parse(stored);
+            } catch {
+              return {};
+            }
+          }
+          return {};
+        }
+
+        function saveScores(scores) {
+          localStorage.setItem("quizScores", JSON.stringify(scores));
+        }
+
+        function updateScoreList() {
+          const scores = loadScores();
+          $scoreListUl.empty();
+
+          Object.keys(quizzes).forEach((quizKey) => {
+            const quizName = quizzes[quizKey].title.replace(" Quiz", "");
+            const score = scores[quizKey];
+
+            let scoreText = "N/A";
+            if (score !== undefined && score !== null) {
+              scoreText = `${score} / 5`;
+            }
+
+            const li = $("<li>").text(`${quizName}: ${scoreText}`);
+            $scoreListUl.append(li);
+          });
+        }
+
+        function showScreen(screen) {
+          $startScreen.hide();
+          $quizListScreen.hide();
+          $quizContainer.hide();
+
+          screen.show();
+        }
+
+        // Quiz logic
+
+        function startQuiz(quizKey) {
+          currentQuizKey = quizKey;
+          currentQuestionIndex = 0;
+          correctAnswersCount = 0;
+          $btnNext.hide();
+          $btnRestart.hide();
+          $btnStopQuiz.hide();
+          $feedback.text("");
+          $scoreDisplay.text(
+            `Score: ${correctAnswersCount} / ${quizzes[currentQuizKey].questions.length}`
+          );
+          showScreen($quizContainer);
+          loadQuestion();
+        }
+
+        function loadQuestion() {
+          const quiz = quizzes[currentQuizKey];
+          const q = quiz.questions[currentQuestionIndex];
+          $questionText.text(q.question);
+          $optionsList.empty();
+          $feedback.text("");
+          $btnNext.hide();
+          $btnRestart.hide();
+          
+          q.options.forEach((opt, i) => {
+            const $li = $("<li>").text(opt).data("index", i);
+            $optionsList.append($li);
+          });
+        }
+
+        function updateScoreDisplay() {
+          $scoreDisplay.text(
+            `Score: ${correctAnswersCount} / ${quizzes[currentQuizKey].questions.length}`
+          );
+        }
+
+        // Event Listeners
+
+        // Start Play button - show quiz list screen
+        $playBtn.on("click", () => {
+          updateScoreList();
+          showScreen($quizListScreen);
+        });
+
+        // Stop Quizzing button
+        $stopBtn.on("click", () => {
+          alert("Thank you for using the Quiz Portal! Goodbye!");
+          // Could add more behavior here if needed.
+        });
+
+        // Back to Start button
+        $backToStartBtn.on("click", () => {
+          showScreen($startScreen);
+        });
+
+        // Clicking on quiz list buttons
+        $(".quiz-list button").on("click", function () {
+          const quizKey = $(this).data("quiz");
+          startQuiz(quizKey);
+        });
+
+        // Clicking an option in quiz
+        $optionsList.on("click", "li", function () {
+          // Ignore if already answered
+          if ($btnNext.is(":visible")) return;
+
+          const selectedIndex = $(this).data("index");
+          const quiz = quizzes[currentQuizKey];
+          const question = quiz.questions[currentQuestionIndex];
+
+          // Highlight selection
+          $optionsList.children().removeClass("selected");
+          $(this).addClass("selected");
+
+          if (selectedIndex === question.answer) {
+            $feedback.text("Correct! 🎉");
+            correctAnswersCount++;
+          } else {
+            $feedback.text(
+              `Wrong! Correct answer: ${question.options[question.answer]}`
+            );
+          }
+
+          updateScoreDisplay();
+          $btnNext.show();
+        });
+
+        // Next Question button
+        $btnNext.on("click", () => {
+          currentQuestionIndex++;
+          const quiz = quizzes[currentQuizKey];
+          if (currentQuestionIndex >= quiz.questions.length) {
+            // Quiz complete
+            $feedback.text(
+              `Quiz complete! Your final score: ${correctAnswersCount} / ${quiz.questions.length}`
+            );
+            $scoreDisplay.hide();
+            $btnNext.hide();
+            $btnRestart.show();
+            $btnStopQuiz.show();
+
+            // Save score to localStorage
+            const scores = loadScores();
+            scores[currentQuizKey] = correctAnswersCount;
+            saveScores(scores);
+          } else {
+            loadQuestion();
+          }
+        });
+
+        // Restart Quiz button
+        $btnRestart.on("click", () => {
+          startQuiz(currentQuizKey);
+        });
+
+        // Quiz Portal (stop quiz) button
+        $btnStopQuiz.on("click", () => {
+          updateScoreList();
+          showScreen($quizListScreen);
+        });
+
+        // Initialize app by showing start screen
+        showScreen($startScreen);
+      });
+    </script>
+  </body>
+</html>
