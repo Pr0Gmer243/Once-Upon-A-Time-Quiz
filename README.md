@@ -8,5 +8,5 @@ This series is owned by [The Walt Disney Company](https://thewaltdisneycompany.c
 
 ## Contribution
 
-I created this entirely on my own. Feel free to use it if you'd like, but please remember that it's my original work!
+I created this entirely on my own. Feel free to use it if you'd like, but please remember that it's my original code!
 ##
